@@ -10,15 +10,25 @@ import UIKit
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Text("Hello, world!")
-        }
-        .padding()
+        PuzzleViewControllerWrapper()
+            .edgesIgnoringSafeArea(.all) // Optional: To make the puzzle cover the entire screen
     }
 }
 
 #Preview {
     ContentView()
+}
+
+struct PuzzleViewControllerWrapper: UIViewControllerRepresentable {
+    
+    func makeUIViewController(context: Context) -> ViewController {
+        // Return the instance of your custom ViewController
+        return ViewController()
+    }
+    
+    func updateUIViewController(_ uiViewController: ViewController, context: Context) {
+        // Optionally, update your UIViewController if needed
+    }
 }
 
 class ViewController: UIViewController {
