@@ -49,11 +49,21 @@ class ViewController: UIViewController {
         let padding: CGFloat = 10.0
         let startingNumbers = (1..<9).shuffled() + [0] // Numbers 1-8 shuffled with 0 representing empty space
         
+        let totalWidth = CGFloat(gridSize) * buttonSize + CGFloat(gridSize - 1) * padding
+        let totalHeight = CGFloat(gridSize) * buttonSize + CGFloat(gridSize - 1) * padding
+        
+        let startX = (self.view.frame.width - totalWidth) / 2
+        let startY = (self.view.frame.height - totalHeight) / 2
+        
         for i in 0..<gridSize * gridSize {
             let row = i / gridSize
             let col = i % gridSize
             let button = UIButton(type: .system)
-            button.frame = CGRect(x: CGFloat(col) * (buttonSize + padding), y: CGFloat(row) * (buttonSize + padding), width: buttonSize, height: buttonSize)
+            
+            let x = startX + CGFloat(col) * (buttonSize + padding)
+            let y = startY + CGFloat(row) * (buttonSize + padding)
+            
+            button.frame = CGRect(x: x, y: y, width: buttonSize, height: buttonSize)
             
             // Set up button actions
             button.tag = i
@@ -71,6 +81,7 @@ class ViewController: UIViewController {
             buttons.append(button)
         }
     }
+
     
     @objc func buttonTapped(_ sender: UIButton) {
         let tappedIndex = sender.tag
