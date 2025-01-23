@@ -69,6 +69,8 @@ class ViewController: UIViewController {
             button.tag = i
             button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
             
+            button.backgroundColor = UIColor.lightGray
+            
             // Set button titles or images
             if startingNumbers[i] != 0 {
                 button.setTitle("\(startingNumbers[i])", for: .normal)
@@ -107,5 +109,21 @@ class ViewController: UIViewController {
         
         // Move the empty space index
         emptySpaceIndex = tappedIndex
+        checkWinCondition()
     }
+    
+    func checkWinCondition() {
+            // Loop through the buttons and check if each one is in its correct position
+            for i in 0..<buttons.count {
+                let button = buttons[i]
+                if button.title(for: .normal) != "\(i + 1)" && (i != 8 || button.title(for: .normal) != "") {
+                    return // If any button is out of order, return without doing anything
+                }
+            }
+            
+            // If the loop completes, the puzzle is solved
+            let alert = UIAlertController(title: "Congratulations!", message: "You solved the puzzle!", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true, completion: nil)
+        }
 }
