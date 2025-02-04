@@ -11,7 +11,7 @@ import UIKit
 struct ContentView: View {
     var body: some View {
         PuzzleViewControllerWrapper()
-            .edgesIgnoringSafeArea(.all) // Optional: To make the puzzle cover the entire screen
+            .edgesIgnoringSafeArea(.all)
     }
 }
 
@@ -20,19 +20,16 @@ struct ContentView: View {
 }
 
 struct PuzzleViewControllerWrapper: UIViewControllerRepresentable {
-    
     func makeUIViewController(context: Context) -> ViewController {
         // Return the instance of your custom ViewController
         return ViewController()
     }
     
     func updateUIViewController(_ uiViewController: ViewController, context: Context) {
-        // Optionally, update your UIViewController if needed
     }
 }
 
 class ViewController: UIViewController {
-
     var buttons: [UIButton] = []
     var emptySpaceIndex = 8  // 0-indexed position for 3x3 grid (empty space at last)
 
@@ -41,6 +38,7 @@ class ViewController: UIViewController {
         
         // Set up the game board
         setupPuzzle()
+        resetButton()
     }
     
     func setupPuzzle() {
@@ -84,6 +82,22 @@ class ViewController: UIViewController {
         }
     }
 
+    func resetButton() {
+        // Create a reset button
+        let resetButton = UIButton(type: .system)
+        resetButton.setTitle("Reset", for: .normal)
+        
+        // Calculate the position of the reset button based on the grid's size
+        let gridHeight = CGFloat(3 * 100 + 2 * 10) // 3x3 grid, 100 for button size, 10 for padding between buttons
+        let totalHeight = gridHeight + 10 // Add some space between the grid and the reset button
+        let buttonY = self.view.frame.height - totalHeight + 50 // Position it below the grid (adjust 60 for spacing)
+        
+        resetButton.frame = CGRect(x: (self.view.frame.width - 100) / 2, y: buttonY, width: 100, height: 50)
+        resetButton.addTarget(self, action: #selector(resetPuzzle), for: .touchUpInside)
+        
+        // Add the reset button to the view
+        self.view.addSubview(resetButton)
+    }
     
     @objc func buttonTapped(_ sender: UIButton) {
         let tappedIndex = sender.tag
@@ -100,6 +114,22 @@ class ViewController: UIViewController {
             swapButtons(tappedIndex)
         }
     }
+    
+    @objc func resetPuzzle() {
+            // Shuffle the puzzle again for a new game
+            let startingNumbers = (1..<9).shuffled() + [0] // Numbers 1-8 shuffled with 0 representing empty space
+            
+            emptySpaceIndex = 8  // Reset empty space position
+            
+            for i in 0..<buttons.count {
+                let button = buttons[i]
+                if startingNumbers[i] != 0 {
+                    button.setTitle("\(startingNumbers[i])", for: .normal)
+                } else {
+                    button.setTitle("", for: .normal)
+                }
+            }
+        }
     
     func swapButtons(_ tappedIndex: Int) {
         // Update empty space index
