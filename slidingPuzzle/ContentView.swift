@@ -34,12 +34,12 @@ class ViewController: UIViewController {
     var emptySpaceIndex = 8  // 0-indexed position for 3x3 grid (empty space at last)
 
     override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // Set up the game board
-        setupPuzzle()
-        resetButton()
-    }
+           super.viewDidLoad()
+           
+           // Set up the game board
+           setupPuzzle()
+           resetButton()
+       }
     
     func setupPuzzle() {
         let gridSize = 3 // 3x3 grid
@@ -81,7 +81,7 @@ class ViewController: UIViewController {
             buttons.append(button)
         }
     }
-
+    
     func resetButton() {
         // Create a reset button
         let resetButton = UIButton(type: .system)
@@ -116,23 +116,23 @@ class ViewController: UIViewController {
     }
     
     @objc func resetPuzzle() {
-            // Shuffle the puzzle again for a new game
-            let startingNumbers = (1..<9).shuffled() + [0] // Numbers 1-8 shuffled with 0 representing empty space
-            
-            emptySpaceIndex = 8  // Reset empty space position
-            
-            for i in 0..<buttons.count {
-                let button = buttons[i]
-                if startingNumbers[i] != 0 {
-                    button.setTitle("\(startingNumbers[i])", for: .normal)
-                } else {
-                    button.setTitle("", for: .normal)
-                }
+        var startingNumbers: [Int]
+        //generate a solvable puzzle
+        repeat {
+            startingNumbers = (1..<9).shuffled() + [0] // shuffle numbers 1-8, 0 = empty space
+        } while !isSolvable(startingNumbers)
+        emptySpaceIndex = startingNumbers.firstIndex(of: 0) ?? 8
+        for i in 0..<buttons.count {
+            let button = buttons[i]
+            if startingNumbers[i] != 0 {
+                button.setTitle("\(startingNumbers[i])", for: .normal)
+            } else {
+                button.setTitle("", for: .normal)
             }
         }
+    }
     
-    func swapButtons(_ tappedIndex: Int) {
-        // Update empty space index
+    func swapButtons(_ tappedIndex: Int) {  // Update empty space index
         let tappedButton = buttons[tappedIndex]
         buttons[emptySpaceIndex].setTitle(tappedButton.title(for: .normal), for: .normal)
         tappedButton.setTitle("", for: .normal)
@@ -143,17 +143,30 @@ class ViewController: UIViewController {
     }
     
     func checkWinCondition() {
-            // Loop through the buttons and check if each one is in its correct position
-            for i in 0..<buttons.count {
-                let button = buttons[i]
-                if button.title(for: .normal) != "\(i + 1)" && (i != 8 || button.title(for: .normal) != "") {
-                    return // If any button is out of order, return without doing anything
+        // Loop through the buttons and check if each one is in its correct position
+        for i in 0..<buttons.count {
+            let button = buttons[i]
+            if button.title(for: .normal) != "\(i + 1)" && (i != 8 || button.title(for: .normal) != "") {
+                return // If any button is out of order, return without doing anything
+            }
+        }
+        
+        // If the loop completes, the puzzle is solved
+        let alert = UIAlertController(title: "Congratulations!", message: "You solved the puzzle!", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default));             present(alert, animated: true, completion: nil)
+    }
+    
+    func isSolvable(_ tiles: [Int]) -> Bool {
+        var inversionCount = 0
+        let numbers = tiles.filter { $0 != 0}
+        
+        for i in 0..<numbers.count {
+            for j in i+1..<numbers.count {
+                if numbers[i] > numbers[j] {
+                    inversionCount += 1
                 }
             }
-            
-            // If the loop completes, the puzzle is solved
-            let alert = UIAlertController(title: "Congratulations!", message: "You solved the puzzle!", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true, completion: nil)
         }
+        return inversionCount % 2 == 0 // Solvable if even
+    }
 }
