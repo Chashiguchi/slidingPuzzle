@@ -32,14 +32,14 @@ struct PuzzleViewControllerWrapper: UIViewControllerRepresentable {
 class ViewController: UIViewController {
     var buttons: [UIButton] = []
     var emptySpaceIndex = 8  // 0-indexed position for 3x3 grid (empty space at last)
-
+    
     override func viewDidLoad() {
-           super.viewDidLoad()
-           
-           // Set up the game board
-           setupPuzzle()
-           resetButton()
-       }
+        super.viewDidLoad()
+        
+        // Set up the game board
+        setupPuzzle()
+        resetButton()
+    }
     
     func setupPuzzle() {
         let gridSize = 3 // 3x3 grid
@@ -146,11 +146,16 @@ class ViewController: UIViewController {
         // Loop through the buttons and check if each one is in its correct position
         for i in 0..<buttons.count {
             let button = buttons[i]
-            if button.title(for: .normal) != "\(i + 1)" && (i != 8 || button.title(for: .normal) != "") {
-                return // If any button is out of order, return without doing anything
+            // The last button should be blank until solved
+            if i == 8 {
+                if button.title(for: .normal) != "" {
+                    return  // If it's not blank, the puzzle isn't solved
+                }
+            } else if button.title(for: .normal) != "\(i + 1)" {
+                return  // Any other button out of place means the puzzle isn't solved
             }
         }
-        
+        buttons[emptySpaceIndex].setTitle("9", for: .normal)//replaces the blank space with 9
         // If the loop completes, the puzzle is solved
         let alert = UIAlertController(title: "Congratulations!", message: "You solved the puzzle!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default));             present(alert, animated: true, completion: nil)
