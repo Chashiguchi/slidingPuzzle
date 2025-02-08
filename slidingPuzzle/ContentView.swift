@@ -21,7 +21,6 @@ struct ContentView: View {
 
 struct PuzzleViewControllerWrapper: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> ViewController {
-        // Return the instance of your custom ViewController
         return ViewController()
     }
     
@@ -31,12 +30,12 @@ struct PuzzleViewControllerWrapper: UIViewControllerRepresentable {
 
 class ViewController: UIViewController {
     var buttons: [UIButton] = []
-    var emptySpaceIndex = 8  // 0-indexed position for 3x3 grid (empty space at last)
+    var emptySpaceIndex = 8 // Empty space at last index of a 3x3 grid
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Set up the game board
+        view.backgroundColor = UIColor.systemGray //background color
+        setupTitle()  // Add the title
         setupPuzzle()
         resetButton()
     }
@@ -45,7 +44,7 @@ class ViewController: UIViewController {
         let gridSize = 3 // 3x3 grid
         let buttonSize: CGFloat = 100.0
         let padding: CGFloat = 10.0
-        let startingNumbers = (1..<9).shuffled() + [0] // Numbers 1-8 shuffled with 0 representing empty space
+        let startingNumbers = (1..<9).shuffled() + [0] // Numbers 1-8 shuffled, 0 is the empty space
         
         let totalWidth = CGFloat(gridSize) * buttonSize + CGFloat(gridSize - 1) * padding
         let totalHeight = CGFloat(gridSize) * buttonSize + CGFloat(gridSize - 1) * padding
@@ -63,64 +62,82 @@ class ViewController: UIViewController {
             
             button.frame = CGRect(x: x, y: y, width: buttonSize, height: buttonSize)
             
-            // Set up button actions
             button.tag = i
             button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
             
-            button.backgroundColor = UIColor.lightGray
+            button.backgroundColor = UIColor.systemTeal // Button background color
+            button.layer.cornerRadius = 10 // Rounded corners
+            button.layer.masksToBounds = true
             
-            // Set button titles or images
             if startingNumbers[i] != 0 {
                 button.setTitle("\(startingNumbers[i])", for: .normal)
+                button.setTitleColor(UIColor.white, for: .normal)  // White text for numbers
+                button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24) // Larger, bold font
             } else {
-                button.setTitle("", for: .normal)
+                button.setTitle("", for: .normal) // Empty space has no title
             }
             
-            // Add to view
             self.view.addSubview(button)
             buttons.append(button)
         }
     }
     
+    func setupTitle() {
+        // Create the title label
+        let titleLabel = UILabel()
+        titleLabel.text = "Sliding Puzzle"
+        titleLabel.textAlignment = .center
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 32)  // Adjust font size as needed
+        titleLabel.textColor = UIColor.black  // Title text color
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add the label to the view
+        view.addSubview(titleLabel)
+        
+        // Set constraints to position the title at the top
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+    }
+    
     func resetButton() {
-        // Create a reset button
         let resetButton = UIButton(type: .system)
         resetButton.setTitle("Reset", for: .normal)
+        resetButton.setTitleColor(.white, for: .normal)
+        resetButton.backgroundColor = UIColor.systemBlue
+        resetButton.layer.cornerRadius = 12 // Rounded corners
+        resetButton.layer.shadowOpacity = 0.3 // Add subtle shadow
+        resetButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+        resetButton.layer.shadowRadius = 4
         
-        // Calculate the position of the reset button based on the grid's size
-        let gridHeight = CGFloat(3 * 100 + 2 * 10) // 3x3 grid, 100 for button size, 10 for padding between buttons
-        let totalHeight = gridHeight + 10 // Add some space between the grid and the reset button
-        let buttonY = self.view.frame.height - totalHeight + 50 // Position it below the grid (adjust 60 for spacing)
+        let gridHeight = CGFloat(3 * 100 + 2 * 10) // Height of the grid
+        let buttonY = self.view.frame.height - gridHeight + 60
         
-        resetButton.frame = CGRect(x: (self.view.frame.width - 100) / 2, y: buttonY, width: 100, height: 50)
+        resetButton.frame = CGRect(x: (self.view.frame.width - 150) / 2, y: buttonY, width: 150, height: 50)
         resetButton.addTarget(self, action: #selector(resetPuzzle), for: .touchUpInside)
         
-        // Add the reset button to the view
         self.view.addSubview(resetButton)
     }
     
     @objc func buttonTapped(_ sender: UIButton) {
         let tappedIndex = sender.tag
-        
-        // Find the empty space's position
         let emptyRow = emptySpaceIndex / 3
         let emptyCol = emptySpaceIndex % 3
         let tappedRow = tappedIndex / 3
         let tappedCol = tappedIndex % 3
         
-        // Check if the tapped button is adjacent to the empty space
         if (abs(emptyRow - tappedRow) == 1 && emptyCol == tappedCol) || (abs(emptyCol - tappedCol) == 1 && emptyRow == tappedRow) {
-            // Swap the tapped button and the empty space
             swapButtons(tappedIndex)
         }
     }
     
     @objc func resetPuzzle() {
         var startingNumbers: [Int]
-        //generate a solvable puzzle
         repeat {
-            startingNumbers = (1..<9).shuffled() + [0] // shuffle numbers 1-8, 0 = empty space
+            startingNumbers = (1..<9).shuffled() + [0]
         } while !isSolvable(startingNumbers)
+        
         emptySpaceIndex = startingNumbers.firstIndex(of: 0) ?? 8
         for i in 0..<buttons.count {
             let button = buttons[i]
@@ -132,38 +149,36 @@ class ViewController: UIViewController {
         }
     }
     
-    func swapButtons(_ tappedIndex: Int) {  // Update empty space index
+    func swapButtons(_ tappedIndex: Int) {
         let tappedButton = buttons[tappedIndex]
         buttons[emptySpaceIndex].setTitle(tappedButton.title(for: .normal), for: .normal)
         tappedButton.setTitle("", for: .normal)
         
-        // Move the empty space index
         emptySpaceIndex = tappedIndex
         checkWinCondition()
     }
     
     func checkWinCondition() {
-        // Loop through the buttons and check if each one is in its correct position
         for i in 0..<buttons.count {
             let button = buttons[i]
-            // The last button should be blank until solved
             if i == 8 {
                 if button.title(for: .normal) != "" {
-                    return  // If it's not blank, the puzzle isn't solved
+                    return
                 }
             } else if button.title(for: .normal) != "\(i + 1)" {
-                return  // Any other button out of place means the puzzle isn't solved
+                return
             }
         }
-        buttons[emptySpaceIndex].setTitle("9", for: .normal)//replaces the blank space with 9
-        // If the loop completes, the puzzle is solved
+        buttons[emptySpaceIndex].setTitle("9", for: .normal)
+        
         let alert = UIAlertController(title: "Congratulations!", message: "You solved the puzzle!", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default));             present(alert, animated: true, completion: nil)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true, completion: nil)
     }
     
     func isSolvable(_ tiles: [Int]) -> Bool {
         var inversionCount = 0
-        let numbers = tiles.filter { $0 != 0}
+        let numbers = tiles.filter { $0 != 0 }
         
         for i in 0..<numbers.count {
             for j in i+1..<numbers.count {
@@ -172,6 +187,6 @@ class ViewController: UIViewController {
                 }
             }
         }
-        return inversionCount % 2 == 0 // Solvable if even
+        return inversionCount % 2 == 0
     }
 }
