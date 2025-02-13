@@ -48,13 +48,10 @@ class ViewController: UIViewController {
         let buttonSize: CGFloat = 100.0
         let padding: CGFloat = 10.0
         let startingNumbers = (1..<9).shuffled() + [0] // Numbers 1-8 shuffled, 0 is the empty space
-        
         let totalWidth = CGFloat(gridSize) * buttonSize + CGFloat(gridSize - 1) * padding
         let totalHeight = CGFloat(gridSize) * buttonSize + CGFloat(gridSize - 1) * padding
-        
         let startX = (self.view.frame.width - totalWidth) / 2
         let startY = (self.view.frame.height - totalHeight) / 2
-        
         for i in 0..<gridSize * gridSize {
             let row = i / gridSize
             let col = i % gridSize
@@ -62,17 +59,14 @@ class ViewController: UIViewController {
             // Calculate the X and Y positions based on the button size and padding
             let x = startX + CGFloat(col) * (buttonSize + padding)
             let y = startY + CGFloat(row) * (buttonSize + padding)
-            
             button.frame = CGRect(x: x, y: y, width: buttonSize, height: buttonSize)
             // Assign a unique tag to each button for identification
             button.tag = i
             // Add action to handle button taps
             button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
-            
             button.backgroundColor = UIColor.systemTeal // Button background color
             button.layer.cornerRadius = 10 // Rounded corners
             button.layer.masksToBounds = true // Ensure the corners are properly clipped
-            
             if startingNumbers[i] != 0 {
                 button.setTitle("\(startingNumbers[i])", for: .normal)
                 button.setTitleColor(UIColor.white, for: .normal)  // White text for numbers
@@ -95,10 +89,8 @@ class ViewController: UIViewController {
         titleLabel.textColor = UIColor.black  // Title text color
         // Disable the automatic constraint translation for this label
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        
         // Add the label to the view
         view.addSubview(titleLabel)
-        
         // Set constraints to position the title at the top
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -150,7 +142,6 @@ class ViewController: UIViewController {
         repeat {
             startingNumbers = (1..<9).shuffled() + [0]
         } while !isSolvable(startingNumbers)
-        
         emptySpaceIndex = startingNumbers.firstIndex(of: 0) ?? 8
         // Update the titles of each button based on the shuffled starting configuration
         for i in 0..<buttons.count {
@@ -189,7 +180,6 @@ class ViewController: UIViewController {
             }
         }
         buttons[emptySpaceIndex].setTitle("9", for: .normal)
-        
         let alert = UIAlertController(title: "Congratulations!", message: "You solved the puzzle!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true, completion: nil)
@@ -199,7 +189,6 @@ class ViewController: UIViewController {
         var inversionCount = 0
         // Remove the empty space (represented by 0) from the puzzle array to check only the numbers
         let numbers = tiles.filter { $0 != 0 }
-        
         for i in 0..<numbers.count {
             for j in i+1..<numbers.count {
                 // Check if a number appears before a smaller number (inversion)
