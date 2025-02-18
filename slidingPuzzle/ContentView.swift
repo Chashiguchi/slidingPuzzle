@@ -72,7 +72,9 @@ class ViewController: UIViewController {
                 button.setTitleColor(UIColor.white, for: .normal)  // White text for numbers
                 button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24) // Larger, bold font
             } else {
-                button.setTitle("", for: .normal) // Empty space has no title
+                button.setTitle("", for: .normal)
+                button.setTitleColor(UIColor.white, for: .normal)
+                button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
             }
             // Add the button to the view and keep a reference in the buttons array
             self.view.addSubview(button)
@@ -85,8 +87,8 @@ class ViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.text = "Sliding Puzzle"
         titleLabel.textAlignment = .center
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 32)  // Adjust font size as needed
-        titleLabel.textColor = UIColor.black  // Title text color
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 32)
+        titleLabel.textColor = UIColor.black
         // Disable the automatic constraint translation for this label
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         // Add the label to the view
